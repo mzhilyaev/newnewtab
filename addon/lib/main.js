@@ -8,6 +8,7 @@ const {AppViewer} = require("AppViewer");
 const {Demographer} = require("Demographer");
 const {setTimeout} = require("timers");
 const {WindowTracker} = require("window-utils");
+const request = require("request");
 
 Cu.import("resource://gre/modules/Services.jsm", this);
 
@@ -28,30 +29,34 @@ function UserProfile() {
 const gUserProfile = new UserProfile();
 
 function addApplicationFrame(document) {
+try {
   let tabGrid = document.getElementById("newtab-grid");
   let lastRowDiv = tabGrid.querySelector(".newtab-row:last-child");
   let tabCell = tabGrid.querySelector(".newtab-cell");
 
+
+
+  console.log( tabCell );
+
   // Add a row and cell for the showing the app frame
-  let appDiv = lastRowDiv.cloneNode(false);
-  let appCell = tabCell.cloneNode(false);
-  appDiv.setAttribute("id", "appstab-row");
-  appDiv.appendChild(appCell);
-
-  // Add the viewer frame into the cell
-  new AppViewer({
-    demographer: gUserProfile.demographer,
-    document: document,
-    parentElement: appCell,
+  gUserProfile.demographer.pickRandomBest(function(cat) {
+     console.log(cat);
+     let req = request.Request({
+          url: "https://sitesuggest.mozillalabs.com/" ,
+          headers: { "Category": cat },
+          onComplete: function(response) {
+            console.log( "response" , response.status );
+            if( response.status == 200 ) {
+              console.log(JSON.stringify(response.json));
+            }
+          }
+        });
+       req.get();
   });
+} catch ( ex ) {
+  console.log( "Error " + ex );
 
-  // Show the new last row in place of the old last row
-  lastRowDiv.parentNode.insertBefore(appDiv, lastRowDiv.nextSibling);
-  lastRowDiv.style.display = "none";
-
-  // Pretend the newly added cell isn't a cell to not confuse the page on load
-  appCell.classList.remove("newtab-cell");
-  setTimeout(function() appCell.classList.add("newtab-cell"));
+}
 }
 
 exports.main = function(options) {

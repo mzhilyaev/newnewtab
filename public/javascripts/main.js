@@ -163,7 +163,8 @@ define(function(require) {
   // recommendation (if one exists) will be shown automatically, so this will
   // update that one (hopefully quickly).
   function insertRecommendationIntoDOM(recommendations) {
-    if (!recommendations) {
+
+    if (0 && !recommendations) {
       recommendations = JSON.parse(localStorage.recommendations);
 
       if (recommendations.length === 0) {
@@ -172,9 +173,12 @@ define(function(require) {
       }
     }
 
-    var app = Apps.wrapRecommendation(recommendations['Games'].random());
+    recommendations = [ { "url": "http://www.firefox.com"  , "imageURL": 'http://s3.amazonaws.com/thumbnails-pancake-mozillalabs-com/4b72d3fe551f00a812a723a65f2e55deb371e9335c2182f84793fc09-300x200.jpg' , "name": "firefox" }];
+
+    //var app = Apps.wrapRecommendation(recommendations.random());
     var template = new EJS({url: '/templates/recommendation.ejs'});
-    $('.cell')[RECOMMENDATION_SQUARE].outerHTML = template.render({recommendation: app});
+    $('.cell')[RECOMMENDATION_SQUARE].outerHTML = template.render({recommendation: recommendations.random()});
+    console.log( template.render({recommendation: app}) );
   }
 
   // Listen for drag events on the cells in the page.
@@ -234,7 +238,10 @@ define(function(require) {
 
       // When an app is clicked on, launch it.
       $('#grid').delegate('click', '.app', function(event) {
-        installedApps[this.dataset.appId].launch();
+        
+        console.log( "APP ID " + installedApps[this.dataset.appId].origin );
+        console.log( "THIS " + this.dataset.appId );
+        //installedApps[this.dataset.appId].launch();
         event.preventDefault();
       });
 
@@ -251,11 +258,15 @@ define(function(require) {
         // Reverse stuff to show newest apps first.
         results.reverse();
 
+
         // Keep our list of installed apps in a variable.
         installedApps = results;
 
         // Get the eight most recently installed apps.
         var appsToInsert = Apps.formattedAppsList(results).slice(-LOCAL_APP_SQUARES);
+        console.log( "THERE " + JSON.stringify( appsToInsert[0] ));
+
+        appsToInsert[0]  = {"appObject":{},"imageURL":"http://www.mozilla.org/media/img/firefox/template/header-logo.png","name":"FOO","origin":"http://foo.com","recommendation":false}
 
         // Insert the most recently installed apps into the DOM.
         insertAppsIntoDOM(appsToInsert);
@@ -272,9 +283,12 @@ define(function(require) {
   // Get new recommendations from the server. Afterward, update the DOM with
   // new recommendations.
   function updateRecommendations(request) {
+    console.log( "HELLO" );
     if (request.status === 200) {
       var newRecommendations = JSON.parse(request.responseText);
+      console.log( request.responseText );
       var oldRecommendations = JSON.parse(localStorage.getItem('recommendations'));
+      Object.keys( oldRecommendations ).forEach( function(key) { console.log( key ); });
       localStorage.setItem('recommendations', request.responseText);
 
       insertRecommendationIntoDOM(newRecommendations);
