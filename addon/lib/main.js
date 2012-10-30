@@ -31,12 +31,11 @@ const gUserProfile = new UserProfile();
 function addApplicationFrame(document) {
 try {
   let tabGrid = document.getElementById("newtab-grid");
-  let lastRowDiv = tabGrid.querySelector(".newtab-row:last-child");
+  let lastRowDiv = tabGrid.querySelector(".newtab-row");
   let tabCell = tabGrid.querySelector(".newtab-cell");
 
-
-
-  console.log( tabCell );
+  console.log( tabGrid );
+  console.log( lastRowDiv );
 
   // Add a row and cell for the showing the app frame
   gUserProfile.demographer.pickRandomBest(function(cat) {
