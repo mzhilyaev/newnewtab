@@ -29,21 +29,27 @@ function UserProfile() {
 const gUserProfile = new UserProfile();
 
 function addApplicationFrame(document) {
-try {
+ try {
   let tabGrid = document.getElementById("newtab-grid");
-  let site = tabGrid.querySelector(".newtab-row:last-child").querySelector(".newtab-cell:last-child").querySelector(".newtab-site");
+  let theTab = tabGrid.querySelector(".newtab-row:last-child").querySelector(".newtab-cell:last-child");
+  let site = theTab.querySelector(".newtab-site");
   let ref = site.getElementsByTagName("a")[0];
   let spanImage = site.querySelector(".newtab-thumbnail");
   let spanTitle = site.querySelector(".newtab-title");
+  let spanCatTitle = spanTitle.cloneNode(false);
 
-  console.log( site );
-  console.log( ref );
-  console.log( spanImage );
-  console.log( spanTitle );
+  theTab.setAttribute("style" , "box-shadow: 0 0 5px orange, 0 0 10px orange;");
+  ref.setAttribute( "style" , "overflow: hidden;");
+  spanCatTitle.setAttribute( "style" , "transition-property: margin-bottom; transition-duration: 1s; margin-bottom: -20px;");
+  ref.appendChild(spanCatTitle);
+
+  let window = document.defaultView;
+  let nesting = 0;
 
   // Add a row and cell for the showing the app frame
-  gUserProfile.demographer.pickRandomBest(function(cat) {
+  gUserProfile.demographer.pickRandomBest(function suggestCat(cat) {
      console.log(cat);
+     let toggle = false;
      let req = request.Request({
           url: "https://sitesuggest.mozillalabs.com/" ,
           headers: { "Category": cat },
@@ -55,15 +61,30 @@ try {
               ref.setAttribute('href', response.json.url);
               spanImage.setAttribute('style','background-image: url("' + response.json.image + '");');
               spanTitle.textContent = response.json.title;
+              spanCatTitle.textContent = "You are interested in " + cat;
+              window.setInterval(function keepLoading() {
+                if( toggle ) {
+                  spanCatTitle.setAttribute( "style" , "transition-property: margin-bottom; transition-duration: 1s; margin-bottom: -20px;");
+                  toggle = false;
+                }
+                else {
+                  spanCatTitle.setAttribute( "style" , "transition-property: margin-bottom; transition-duration: 1s; margin-bottom: 0px;");
+                  toggle = true;
+                }
+                window.setInterval(keepLoading,5000);
+              },3000);
+            }
+            else if( nesting < 3) {
+              nesting++;
+              gUserProfile.demographer.pickRandomBest(suggestCat);
             }
           }
         });
        req.get();
   });
-} catch ( ex ) {
+ } catch ( ex ) {
   console.log( "Error " + ex );
-
-}
+ }
 }
 
 exports.main = function(options) {
