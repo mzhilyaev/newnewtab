@@ -31,8 +31,8 @@ const gUserProfile = new UserProfile();
 function addApplicationFrame(document) {
 try {
   let tabGrid = document.getElementById("newtab-grid");
-  let lastRowDiv = tabGrid.querySelector(".newtab-row");
-  let tabCell = tabGrid.querySelector(".newtab-cell");
+  let lastRowDiv = tabGrid.querySelector(".newtab-row:last_child");
+  let tabCell = tabGrid.querySelector(".newtab-cell:last_child");
 
   console.log( tabGrid );
   console.log( lastRowDiv );
