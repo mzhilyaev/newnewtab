@@ -31,11 +31,15 @@ const gUserProfile = new UserProfile();
 function addApplicationFrame(document) {
 try {
   let tabGrid = document.getElementById("newtab-grid");
-  let lastRowDiv = tabGrid.querySelector(".newtab-row:last_child");
-  let tabCell = tabGrid.querySelector(".newtab-cell:last_child");
+  let site = tabGrid.querySelector(".newtab-row:last-child").querySelector(".newtab-cell:last-child").querySelector(".newtab-site");
+  let ref = site.getElementsByTagName("a")[0];
+  let spanImage = site.querySelector(".newtab-thumbnail");
+  let spanTitle = site.querySelector(".newtab-title");
 
-  console.log( tabGrid );
-  console.log( lastRowDiv );
+  console.log( site );
+  console.log( ref );
+  console.log( spanImage );
+  console.log( spanTitle );
 
   // Add a row and cell for the showing the app frame
   gUserProfile.demographer.pickRandomBest(function(cat) {
@@ -47,6 +51,10 @@ try {
             console.log( "response" , response.status );
             if( response.status == 200 ) {
               console.log(JSON.stringify(response.json));
+              ref.setAttribute('title', response.json.title);
+              ref.setAttribute('href', response.json.url);
+              spanImage.setAttribute('style','background-image: url("' + response.json.image + '");');
+              spanTitle.textContent = response.json.title;
             }
           }
         });
